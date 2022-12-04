@@ -8,9 +8,9 @@ async function refreshTokenExist(token) {
     return findResult.length > 0;
 }
 
-async function insertRefreshToken(id, refreshToken) {
-    const q = "INSERT INTO refreshToken(id, refreshToken) VALUES (?,?)";
-    const params = [id, refreshToken];
+async function insertRefreshToken(refreshToken) {
+    const q = "INSERT INTO refreshToken(refreshToken) VALUES (?)";
+    const params = [refreshToken];
     await query(conn, q, params);
 }
 

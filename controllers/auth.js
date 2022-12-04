@@ -43,7 +43,7 @@ async function login(req, res) {
             const refreshToken = jwt.sign(params, process.env.REFRESH_TOKEN_SECRET);
 
             // store refresh token to db
-            await RefreshToken.insertRefreshToken(user.id, refreshToken);
+            await RefreshToken.insertRefreshToken(refreshToken);
             
             // response
             res.json({ accessToken, refreshToken });
