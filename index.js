@@ -15,6 +15,7 @@ app.use(cors({
     origin: true
 }));
 
+app.get('/', (req, res) => res.send("Welcome to se-uwc-be"));
 app.use('/api/auth', routes.auth);
 app.use('/api/map', routes.map);
 app.use('/api/mcp', routes.mcp);
