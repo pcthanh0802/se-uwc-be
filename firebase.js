@@ -23,14 +23,3 @@ initializeApp({
 const firebase = getFirestore();
 
 module.exports = { firebase };
-
-
-
-
-
-
-
-
-
-
-
