@@ -43,8 +43,13 @@ async function getMaintainLogByVehicle(id) {
     return await query(conn, "SELECT * FROM maintainLog WHERE ?", { vehicle_id: id });
 }
 
+async function getAllMaintainLog() {
+    return await query(conn, "SELECT * FROM maintainLog", []);
+}
+
 module.exports = {
     addMaintainLog,
     getMaintainLogById,
-    getMaintainLogByVehicle
+    getMaintainLogByVehicle,
+    getAllMaintainLog
 }

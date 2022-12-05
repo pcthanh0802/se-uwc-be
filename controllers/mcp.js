@@ -14,7 +14,8 @@ async function addMCP(req, res) {
 async function getMCPById(req, res) {
     try {
         const result = await MCP.getMCPById(req.params.id);
-        result ? res.send(result) : res.status(404).send("MCP not found");        
+        if(!result) return res.status(404).send("MCP not found");        
+        res.send(result);
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -24,7 +25,8 @@ async function getMCPById(req, res) {
 async function getMCPByCoordinate(req, res) {
     try {
         const result = await MCP.getMCPByCoordinate(req.body.latitude, req.body.longitude);
-        result ? res.send(result) : res.status(404).send("MCP not found");        
+        if(!result) return res.status(404).send("MCP not found");        
+        res.send(result);      
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -44,7 +46,8 @@ async function updateMCPCurrent(req, res) {
 async function getMCPCurrent(req, res) {
     try {
         const result = await MCP.getMCPCurrent(req.params.id);
-        result ? res.send(result) : res.status(404).send("MCP not found");        
+        if(!result) return res.status(404).send("MCP not found");        
+        res.send(result);      
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -55,7 +58,7 @@ async function getMCPCurrentPercentage(req, res) {
     try {
         const mcp = await MCP.getMCPById(req.params.id);
         const current = await MCP.getMCPCurrent(req.params.id);
-        if(!mcp || !current) res.status(404).send("MCP not found");        
+        if(!mcp || !current) return res.status(404).send("MCP not found");        
 
         const percentage = (current.current / mcp.capacity) * 100;
         console.log(current.current);
@@ -73,12 +76,32 @@ async function getMCPCurrentPercentage(req, res) {
 async function simulateMCPStatusUpdating(req, res) {
     try {
         const current = await MCP.getMCPCurrent(req.params.id);
-        if(!current) res.status(404).send("MCP not found");
+        if(!current) return res.status(404).send("MCP not found");
 
         const increment = Math.round(Math.random()*20);
         current.current += increment;
         await MCP.updateMCPCurrent(current.id, current.current);
         res.send("MCP status updated");
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+async function getAllMCP(req, res) {
+    try {
+        const result = await MCP.getAllMCP();
+        res.send(result);
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+async function getAllMCPCurrent(req, res) {
+    try {
+        const result = await MCP.getAllMCPCurrent();
+        res.send(result);
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -92,5 +115,7 @@ module.exports = {
     updateMCPCurrent,
     getMCPCurrent,
     getMCPCurrentPercentage,
-    simulateMCPStatusUpdating
+    simulateMCPStatusUpdating,
+    getAllMCP,
+    getAllMCPCurrent
 }

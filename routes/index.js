@@ -6,6 +6,7 @@ const log = require('./maintainLog');
 const task = require('./task');
 const setting = require('./setting');
 const message = require('./message');
+const employee = require('./employee');
 
 module.exports = {
     auth,
@@ -15,5 +16,6 @@ module.exports = {
     log,
     task,
     setting,
-    message
+    message,
+    employee
 }

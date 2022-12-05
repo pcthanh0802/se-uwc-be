@@ -48,8 +48,13 @@ async function getEmployeeByUsername(username) {
     return result.length ? result[0] : null;
 }
 
+async function getEmployeeByRole(role) {
+    return await query(conn, "SELECT * FROM employee WHERE ?", { role: role });
+}
+
 module.exports = {
     createAccount,
     getEmployeeById,
-    getEmployeeByUsername
+    getEmployeeByUsername,
+    getEmployeeByRole
 }

@@ -18,7 +18,17 @@ async function getVehicleById(id) {
     return result.length ? result[0] : null;
 }
 
+async function getVehicleByType(type) {
+    return await query(conn, "SELECT * FROM vehicle WHERE ?", { category: type });
+}
+
+async function getAllVehicle() {
+    return await query(conn, "SELECT * FROM vehicle", []);
+}
+
 module.exports = {
     addVehicle,
-    getVehicleById
+    getVehicleById,
+    getVehicleByType,
+    getAllVehicle
 }

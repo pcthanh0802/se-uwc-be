@@ -14,7 +14,7 @@ async function addTask(req, res) {
 async function getTaskById(req, res) {
     try {
         const result = await Task.getTaskById(req.params.id);
-        if(!result) res.status(404).send("Task not found");
+        if(!result) return res.status(404).send("Task not found");
         res.send(result);
     } catch(err) {
         console.log(err);
@@ -25,7 +25,7 @@ async function getTaskById(req, res) {
 async function getTaskByEmployee(req, res) {
     try {
         const result = await Task.getTaskByEmployee(req.params.id);
-        if(result.length == 0) res.status(404).send("Employee's tasks not found");
+        if(result.length == 0) return res.status(404).send("Employee's tasks not found");
         res.send(result);
     } catch(err) {
         console.log(err);

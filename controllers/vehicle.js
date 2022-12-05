@@ -14,7 +14,27 @@ async function addVehicle(req, res) {
 async function getVehicleById(req, res) {
     try {
         const result = await Vehicle.getVehicleById(req.params.id);
-        if(!result) res.status(404).send("Vehicle not found");
+        if(!result) return res.status(404).send("Vehicle not found");
+        res.send(result);
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+async function getVehicleByType(req, res) {
+    try {
+        const result = await Vehicle.getVehicleByType(req.params.type);
+        res.send(result);
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+async function getAllVehicle(req, res) {
+    try {
+        const result = await Vehicle.getAllVehicle();
         res.send(result);
     } catch(err) {
         console.log(err);
@@ -24,5 +44,7 @@ async function getVehicleById(req, res) {
 
 module.exports = {
     addVehicle,
-    getVehicleById
+    getVehicleById,
+    getVehicleByType,
+    getAllVehicle
 }

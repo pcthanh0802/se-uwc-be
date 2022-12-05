@@ -44,10 +44,20 @@ async function getMCPCurrent(id) {
     return res.length ? res[0] : null;
 }
 
+async function getAllMCP() {
+    return await query(conn, "SELECT * FROM mcp", []);
+}
+
+async function getAllMCPCurrent() {
+    return await query(conn, "SEELCT * FROM mcpstatus", []);
+}
+
 module.exports = {
     addMCP,
     getMCPById,
     getMCPByCoordinate,
     updateMCPCurrent,
-    getMCPCurrent
+    getMCPCurrent,
+    getAllMCP,
+    getAllMCPCurrent
 }

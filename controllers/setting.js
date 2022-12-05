@@ -14,7 +14,7 @@ async function addSetting(req, res) {
 async function getSettingByUser(req, res) {
     try{
         const result = await Setting.getSettingByUser(req.params.id);
-        if(!result) res.send("Setting not found");
+        if(!result) return res.send("Setting not found");
         res.send(result);
     } catch(err) {
         console.log(err);

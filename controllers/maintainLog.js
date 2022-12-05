@@ -14,7 +14,7 @@ async function addMaintainLog(req, res) {
 async function getMaintainLogById(req, res) {
     try {
         const result = await MaintainLog.getMaintainLogById(req.params.id);
-        if(!result) res.status(404).send("Log not found");
+        if(!result) return res.status(404).send("Log not found");
         res.send(result);
     } catch(err) {
         console.log(err);
@@ -25,7 +25,17 @@ async function getMaintainLogById(req, res) {
 async function getMaintainLogByVehicle(req, res) {
     try {
         const result = await MaintainLog.getMaintainLogByVehicle(req.params.id);
-        if(!result) res.status(404).send("Vehicle's log not found");
+        if(!result) return res.status(404).send("Vehicle's log not found");
+        res.send(result);
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
+async function getAllMaintainLog(req, res) {
+    try {
+        const result = await MaintainLog.getAllMaintainLog();
         res.send(result);
     } catch(err) {
         console.log(err);
@@ -36,5 +46,6 @@ async function getMaintainLogByVehicle(req, res) {
 module.exports = {
     addMaintainLog,
     getMaintainLogById,
-    getMaintainLogByVehicle
+    getMaintainLogByVehicle,
+    getAllMaintainLog
 }

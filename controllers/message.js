@@ -16,7 +16,7 @@ async function getMessage(req, res) {
     const user2 = req.body.user2;
     try {
         const result = await Message.getMessage(user1, user2);
-        if(result.length == 0) res.status(404).send("No message was found");
+        if(result.length == 0) return res.status(404).send("No message was found");
         res.send(result);
     } catch(err) {
         console.log(err);

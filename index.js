@@ -15,7 +15,7 @@ app.use(cors({
     origin: true
 }));
 
-app.get('/', (req, res) => res.send("Welcome to se-uwc-be"));
+app.get('/', (req, res) => res.send("Welcome to se-uwc-be of group Children of Stone"));
 app.use('/api/auth', routes.auth);
 app.use('/api/map', routes.map);
 app.use('/api/mcp', routes.mcp);
@@ -24,6 +24,7 @@ app.use('/api/maintainLog', routes.log);
 app.use('/api/task', routes.task);
 app.use('/api/setting', routes.setting);
 app.use('/api/message', routes.message);
+app.use('/api/employee', routes.employee);
 
 // start up the server
 const port = process.env.PORT || 3125;

@@ -27,9 +27,10 @@ async function createAccount(req, res) {
 async function login(req, res) {
     // search for user in db
     const user = await User.getEmployeeByUsername(req.body.username);
-    if(!user) res.status(404).send("User not found");
+    if(!user) return res.status(404).send("User not found");
 
     try{
+        console.log("Hello");
         // check for correct password
         const isCorrectPw = await bcrypt.compare(req.body.password, user.password);
 
