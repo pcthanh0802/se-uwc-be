@@ -49,7 +49,7 @@ async function getAllMCP() {
 }
 
 async function getAllMCPCurrent() {
-    return await query(conn, "SEELCT * FROM mcpstatus", []);
+    return await query(conn, "SELECT * FROM mcpstatus", []);
 }
 
 module.exports = {
