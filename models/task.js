@@ -11,14 +11,13 @@ async function addTask(task) {
         findDuplicate = await query(conn, "SELECT id FROM employee WHERE ?", { id });
     }
     
-    const q = "INSERT INTO task(id, employee_id, mcp_id, vehicle_id, timeToDo, content, checkin, checkout) VALUES (?,?,?,?,?,?,?,?)";
+    const q = "INSERT INTO task(id, employee_id, mcp_id, vehicle_id, timeToDo, checkin, checkout) VALUES (?,?,?,?,?,?,?)";
     const params = [
         id,
         task.employee_id,
         task.mcp_id,
-        task.vehicle_id,
+        task.vehicle_id ? task.vehicle_id : null,
         task.timeToDo,
-        task.content,
         task.checkin,
         task.checkout
     ];

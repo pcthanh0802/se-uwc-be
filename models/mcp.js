@@ -12,10 +12,9 @@ async function addMCP(mcp) {
     }
     
     // insert new MCP into db
-    const q = "INSERT INTO mcp(id, name, address, capacity, longitude, latitude) VALUES (?,?,?,?,?,?)";
+    const q = "INSERT INTO mcp(id, address, capacity, longitude, latitude) VALUES (?,?,?,?,?)";
     const params = [
         id, 
-        mcp.name,
         mcp.address,
         mcp.capacity,
         mcp.longitude,
