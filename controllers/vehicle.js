@@ -24,7 +24,7 @@ async function getVehicleById(req, res) {
 
 async function getVehicleByType(req, res) {
     try {
-        const result = await Vehicle.getVehicleByType(req.params.type);
+        const result = await Vehicle.getVehicleByType(req.body.type);
         res.send(result);
     } catch(err) {
         console.log(err);
