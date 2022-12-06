@@ -108,7 +108,10 @@ async function generateCurrentPositionOfCollector(collectorId) {
         await firebase.collection('currentPos').doc(collectorId).update({ lastSeen: Date.now() % 10000000 });
 
         // return current points
-        return result;
+        return {
+            currentPos: result,
+            route: []
+        }
     };
 
     const time = ((Date.now() % 10000000) - current.data().lastSeen) / 1000;
@@ -119,14 +122,22 @@ async function generateCurrentPositionOfCollector(collectorId) {
 // ========= Route function =========
 async function inputWaypoints(req, res) {
     try{
-        const distance = calculateDistance(req.body.collectorId, req.body.points);
         const points = req.body.points;
+        const collectorId = req.body.collectorId;
+        const distance = calculateDistance(collectorId, points);
         const data = {
-            collectorId: req.body.collectorId,
+            collectorId: collectorId,
             points: points.reverse(),
             distance: distance
         }
-        await firebase.collection('waypoints').doc(req.body.collectorId).set(data);
+
+        // insert simulation data into firebase
+        await firebase.collection('waypoints').doc(collectorId).set(data);
+        await firebase.collection('currentPos').doc(collectorId).set({
+            collectorId: collectorId,
+            currentPos: points[0],
+            lastSeen: Date.now()
+        });
         res.status(200).send("Input successfully");
     } catch(err) {
         console.log(err);
