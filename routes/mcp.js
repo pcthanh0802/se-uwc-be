@@ -10,7 +10,7 @@ router.post('/info', auth, mcpController.getMCPByCoordinate);
 router.put('/updateCurrent', auth, mcpController.updateMCPCurrent);
 router.get('/current/:id', auth, mcpController.getMCPCurrent);
 router.get('/current/percentage/:id', auth, mcpController.getMCPCurrentPercentage);
-router.put('/current/reset/:id', auth, mcpController.resetMCPCurrent);
+router.put('/current/reset/:id', mcpController.resetMCPCurrent);
 router.put('/current/update/:id', mcpController.simulateMCPStatusUpdating);
 
 module.exports = router;
