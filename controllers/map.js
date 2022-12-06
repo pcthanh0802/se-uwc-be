@@ -43,31 +43,34 @@ async function process(collectorId, points, distance, velocity) {
         await firebase.collection('waypoints').doc(collectorId).update(data);
     }
 
+    const subprocess = async (collectorId, points, distance, tmp, tmpPoint, step) => {
+        tmp -= step;
+        distance.push(tmp);
+        points.push(tmpPoint);
+        const l = points.length;
+        await updateMapInfo(collectorId, points, distance);
+        return generateCurrentPosition(points[l-1], points[l-2], tmp);
+    }
+
     if(distance.length){
         let tmp = distance.pop();
+        let tmpPoint = points.pop()
         if(tmp >= velocity) {
-            tmp -= velocity;
-            distance.push(tmp);
-            const index = distance.length - 2;
-            await updateMapInfo(collectorId, points, distance);
-            return generateCurrentPosition(points[index], points[index + 1], tmp);
+            return await subprocess(collectorId, points, distance, tmp, tmpPoint, velocity);
         }
         else {
             let traverse = velocity;
-            while(distance.length > 1 && tmp < traverse) {
+            while(distance.length > 0 && tmp < traverse) {
                 traverse -= tmp;
                 tmp = distance.pop();
+                tmpPoint = points.pop();
             }
-            if(distance.length == 1) {
+            if(tmp <= traverse && points.length == 1 && distance.length == 0) {
                 await firebase.collection('waypoints').doc(collectorId).delete();
-                return points[points.length - 1];
+                return points[0];
             }
             else {
-                tmp -= traverse;
-                distance.push(tmp);
-                const index = distance.length - 2;
-                await updateMapInfo(collectorId, points, distance);
-                return generateCurrentPosition(points[index], points[index + 1], tmp);
+                return await subprocess(collectorId, points, distance, tmp, tmpPoint, traverse);
             }
         }
     }
@@ -86,9 +89,10 @@ async function generateCurrentPositionOfCollector(collectorId) {
 async function inputWaypoints(req, res) {
     try{
         const distance = calculateDistance(req.body.collectorId, req.body.points);
+        const points = req.body.points;
         const data = {
             collectorId: req.body.collectorId,
-            points: req.body.points,
+            points: points.reverse(),
             distance: distance
         }
         await firebase.collection('waypoints').doc(req.body.collectorId).set(data);
