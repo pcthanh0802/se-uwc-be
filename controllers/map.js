@@ -56,7 +56,10 @@ async function process(collectorId, points, distance, velocity) {
             lastSeen: Date.now() % 10000000,
             currentPos: currentPos
         });
-        return currentPos;
+        return {
+            currentPos,
+            route: points.reverse()
+        };
     }
 
     if(distance.length){
@@ -79,7 +82,10 @@ async function process(collectorId, points, distance, velocity) {
                     lastSeen: Date.now() % 10000000,
                     currentPos: points[0]
                 });
-                return points[0];
+                return {
+                    currentPos: points[0],
+                    route: []
+                };
             }
             else {
                 return await subprocess(tmp, tmpPoint, traverse);
