@@ -53,7 +53,7 @@ async function process(collectorId, points, distance, velocity) {
         const currentPos = generateCurrentPosition(points[l-1], points[l-2], tmp);
         await firebase.collection('currentPos').doc(collectorId).set({
             collectorId: collectorId,
-            lastSeen: Date.now() % 10000000,
+            lastSeen: Date.now(),
             currentPos: currentPos
         });
         return {
@@ -79,7 +79,7 @@ async function process(collectorId, points, distance, velocity) {
                 await firebase.collection('waypoints').doc(collectorId).delete();
                 await firebase.collection('currentPos').doc(collectorId).set({
                     collectorId: collectorId,
-                    lastSeen: Date.now() % 10000000,
+                    lastSeen: Date.now(),
                     currentPos: points[0]
                 });
                 return {
@@ -105,7 +105,7 @@ async function generateCurrentPositionOfCollector(collectorId) {
         const result = current.data().currentPos;
 
         // update lastSeen time
-        await firebase.collection('currentPos').doc(collectorId).update({ lastSeen: Date.now() % 10000000 });
+        await firebase.collection('currentPos').doc(collectorId).update({ lastSeen: Date.now() });
 
         // return current points
         return {
@@ -114,7 +114,8 @@ async function generateCurrentPositionOfCollector(collectorId) {
         }
     };
 
-    const time = ((Date.now() % 10000000) - current.data().lastSeen) / 1000;
+    const time = (Date.now() - current.data().lastSeen) / 1000;
+    console.log(`time: ${time}`);
     return await process(collectorId, route.data().points, route.data().distance, 5 * time);     // velocity = 90m/10s => 9m/s
 }
 
@@ -135,7 +136,7 @@ async function inputWaypoints(req, res) {
         await firebase.collection('waypoints').doc(collectorId).set(data);
         await firebase.collection('currentPos').doc(collectorId).set({
             collectorId: collectorId,
-            currentPos: points[0],
+            currentPos: points[points.length - 1],
             lastSeen: Date.now()
         });
         res.status(200).send("Input successfully");
