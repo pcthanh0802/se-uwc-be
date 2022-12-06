@@ -1,4 +1,5 @@
-const { firebase } = require('../firebase');
+const { firebase, FieldValue } = require('../firebase');
+const Employee = require('../models/user');
 
 // calculate distance between two points with their latitudes and longitudes 
 // (result returned in meter)
@@ -38,25 +39,31 @@ function calculateDistance(collectorId, points) {
 
 // generate current point from given distance array and velocity
 async function process(collectorId, points, distance, velocity) {
-    const updateMapInfo = async (collectorId, points, distance) => {
+    const updateMapInfo = async () => {
         const data = { collectorId, points, distance };
         await firebase.collection('waypoints').doc(collectorId).update(data);
     }
 
-    const subprocess = async (collectorId, points, distance, tmp, tmpPoint, step) => {
+    const subprocess = async (tmp, tmpPoint, step) => {
         tmp -= step;
         distance.push(tmp);
         points.push(tmpPoint);
         const l = points.length;
-        await updateMapInfo(collectorId, points, distance);
-        return generateCurrentPosition(points[l-1], points[l-2], tmp);
+        await updateMapInfo();
+        const currentPos = generateCurrentPosition(points[l-1], points[l-2], tmp);
+        await firebase.collection('currentPos').doc(collectorId).set({
+            collectorId: collectorId,
+            lastSeen: Date.now() % 10000000,
+            currentPos: currentPos
+        });
+        return currentPos;
     }
 
     if(distance.length){
         let tmp = distance.pop();
         let tmpPoint = points.pop()
         if(tmp >= velocity) {
-            return await subprocess(collectorId, points, distance, tmp, tmpPoint, velocity);
+            return await subprocess(tmp, tmpPoint, velocity);
         }
         else {
             let traverse = velocity;
@@ -67,10 +74,15 @@ async function process(collectorId, points, distance, velocity) {
             }
             if(tmp <= traverse && points.length == 1 && distance.length == 0) {
                 await firebase.collection('waypoints').doc(collectorId).delete();
+                await firebase.collection('currentPos').doc(collectorId).set({
+                    collectorId: collectorId,
+                    lastSeen: Date.now() % 10000000,
+                    currentPos: points[0]
+                });
                 return points[0];
             }
             else {
-                return await subprocess(collectorId, points, distance, tmp, tmpPoint, traverse);
+                return await subprocess(tmp, tmpPoint, traverse);
             }
         }
     }
@@ -78,10 +90,23 @@ async function process(collectorId, points, distance, velocity) {
 
 // generate current point of a collector
 async function generateCurrentPositionOfCollector(collectorId) {      
-    const data = await firebase.collection('waypoints').doc(collectorId).get();
-    if(!data.exists) return null;
+    const route = await firebase.collection('waypoints').doc(collectorId).get();
+    const current = await firebase.collection('currentPos').doc(collectorId).get();
 
-    return await process(collectorId, data.data().points, data.data().distance, 90);     // velocity = 90m/10s => 9m/s
+    // collector is not on any route
+    if(!route.exists) {
+        // find current position document in Firestore
+        const result = current.data().currentPos;
+
+        // update lastSeen time
+        await firebase.collection('currentPos').doc(collectorId).update({ lastSeen: Date.now() % 10000000 });
+
+        // return current points
+        return result;
+    };
+
+    const time = ((Date.now() % 10000000) - current.data().lastSeen) / 1000;
+    return await process(collectorId, route.data().points, route.data().distance, 5 * time);     // velocity = 90m/10s => 9m/s
 }
 
 
@@ -106,8 +131,7 @@ async function inputWaypoints(req, res) {
 async function getCurrentPosition(req, res) {
     try{
         const result = await generateCurrentPositionOfCollector(req.params.collectorId);
-        if (!result) res.status(404).send("Collector is not on any route");
-        else res.send(result);
+        res.send(result);
     } catch(err) {
         console.log(err);
         res.sendStatus(500);
@@ -117,15 +141,16 @@ async function getCurrentPosition(req, res) {
 async function getAllCurrentPosition(req, res) {
     try{
         const result = [];
-        const query = await firebase.collection('waypoints').get();
-        const data = query.docs.map(doc => doc.data())
+        const collectors = await Employee.getEmployeeByRole("Collector");
+        const collectorId = collectors.map(col => col.id);
+        console.log(collectorId);
 
-        // no data is found in firebase
-        if(data.length === 0) return res.status(404).send("No collector is on any route");
-
-        for(let i in data){
-            const point = await process(data[i].collectorId, data[i].points, data[i].distance, 90);
-            result.push({ collectorId: data[i].collectorId, point });
+        for(let i in collectorId) {
+            const point = await generateCurrentPositionOfCollector(collectorId[i]);
+            result.push({
+                collectorId: collectorId[i],
+                current: point
+            })
         }
 
         res.send(result);

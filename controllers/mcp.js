@@ -108,6 +108,16 @@ async function getAllMCPCurrent(req, res) {
     }
 }
 
+async function resetMCPCurrent(req, res) {
+    try {
+        await MCP.updateMCPCurrent(req.params.id, 0);
+        res.status(200).send("MCP current status has been reset");
+    } catch(err) {
+        console.log(err);
+        res.sendStatus(500);
+    }
+}
+
 module.exports = {
     addMCP,
     getMCPById,
@@ -117,5 +127,6 @@ module.exports = {
     getMCPCurrentPercentage,
     simulateMCPStatusUpdating,
     getAllMCP,
-    getAllMCPCurrent
+    getAllMCPCurrent,
+    resetMCPCurrent
 }
