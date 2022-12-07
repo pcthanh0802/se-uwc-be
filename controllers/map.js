@@ -106,9 +106,10 @@ async function generateCurrentPositionOfCollector(collectorId) {
         const result = current.data().currentPos;
         
         // update lastSeen time
-        const time = Date.now();
         await firebase.collection('currentPos').doc(collectorId).set({
-            lastSeen: time
+            collectorId: collectorId,
+            currentPos: result,
+            lastSeen: Date.now()
         });
         console.log("here");
 
