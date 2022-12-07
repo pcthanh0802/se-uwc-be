@@ -1,5 +1,6 @@
 const { firebase, FieldValue } = require('../firebase');
 const Employee = require('../models/user');
+const MCP = require('../models/mcp');
 
 // calculate distance between two points with their latitudes and longitudes 
 // (result returned in meter)
@@ -111,7 +112,6 @@ async function generateCurrentPositionOfCollector(collectorId) {
             currentPos: result,
             lastSeen: Date.now()
         });
-        console.log("here");
 
         // return current points
         return {
@@ -121,7 +121,33 @@ async function generateCurrentPositionOfCollector(collectorId) {
     };
 
     const time = (Date.now() - current.data().lastSeen) / 1000;
-    return await process(collectorId, route.data().points, route.data().distance, 10 * time);     // velocity = 10m/s
+    // simulate route
+    const result = await process(collectorId, route.data().points, route.data().distance, 10 * time);     // velocity = 10m/s
+
+    // simulate collector empty MCP
+    const role = (await Employee.getEmployeeById(collectorId)).role;
+    if(role == 'Collector'){
+        const mcps = (await MCP.getAllMCP()).map(mcp => {
+            mcp.id,
+            mcp.latitude,
+            mcp.longitude
+        });
+        const current = result.currentPos;
+        for(let i in mcps){
+            const id = mcps[i].id;
+            const coor = {
+                "latitude": mcps[i].latitude,
+                "longitude": mcps[i].longitude
+            };
+            const distanceToMCP = getDistance(current, coor);     
+
+            if(distanceToMCP <= 75) {
+                await MCP.updateMCPCurrent(id, 0);
+            }
+        }
+    }
+
+    return result;
 }
 
 
