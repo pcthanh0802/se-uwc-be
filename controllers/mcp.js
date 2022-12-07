@@ -78,7 +78,7 @@ async function simulateMCPStatusUpdating(req, res) {
         const current = await MCP.getMCPCurrent(req.params.id);
         if(!current) return res.status(404).send("MCP not found");
 
-        const increment = Math.round(Math.random()*20);
+        const increment = Math.round(Math.random() * 80);
         current.current += increment;
         await MCP.updateMCPCurrent(current.id, current.current);
         res.send("MCP status updated");

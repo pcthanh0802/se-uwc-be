@@ -121,7 +121,7 @@ async function generateCurrentPositionOfCollector(collectorId) {
     };
 
     const time = (Date.now() - current.data().lastSeen) / 1000;
-    return await process(collectorId, route.data().points, route.data().distance, 5 * time);     // velocity = 90m/10s => 9m/s
+    return await process(collectorId, route.data().points, route.data().distance, 10 * time);     // velocity = 10m/s
 }
 
 
