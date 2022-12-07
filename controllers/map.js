@@ -160,13 +160,16 @@ async function getAllCurrentPosition(req, res) {
     try{
         const result = [];
         const collectors = await Employee.getEmployeeByRole("Collector");
+        const janitors = await Employee.getEmployeeByRole("Janitor");
         const collectorId = collectors.map(col => col.id);
-        console.log(collectorId);
+        const janitorId = janitors.map(jan => jan.id);
 
-        for(let i in collectorId) {
-            const point = await generateCurrentPositionOfCollector(collectorId[i]);
+        const idList = collectorId.concat(janitorId);
+
+        for(let i in idList) {
+            const point = await generateCurrentPositionOfCollector(idList[i]);
             result.push({
-                collectorId: collectorId[i],
+                collectorId: idList[i],
                 current: point
             })
         }
