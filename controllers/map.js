@@ -99,13 +99,18 @@ async function generateCurrentPositionOfCollector(collectorId) {
     const route = await firebase.collection('waypoints').doc(collectorId).get();
     const current = await firebase.collection('currentPos').doc(collectorId).get();
 
+    
     // collector is not on any route
     if(!route.exists) {
         // find current position document in Firestore
         const result = current.data().currentPos;
-
+        
         // update lastSeen time
-        await firebase.collection('currentPos').doc(collectorId).update({ lastSeen: Date.now() });
+        const time = Date.now();
+        await firebase.collection('currentPos').doc(collectorId).set({
+            lastSeen: time
+        });
+        console.log("here");
 
         // return current points
         return {
@@ -115,7 +120,6 @@ async function generateCurrentPositionOfCollector(collectorId) {
     };
 
     const time = (Date.now() - current.data().lastSeen) / 1000;
-    console.log(`time: ${time}`);
     return await process(collectorId, route.data().points, route.data().distance, 5 * time);     // velocity = 90m/10s => 9m/s
 }
 
